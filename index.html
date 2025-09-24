@@ -1,25 +1,33 @@
 <!DOCTYPE html>
-<html lang="en" id="main-html">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pace Calculator 2.0</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            padding: 20px;
-            background-color: #f4f4f4;
-            color: #333;
-            transition: all 0.3s ease;
+        /* Your existing CSS remains the same */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
         }
-
+        
         :root {
             --primary-color: rgb(255, 98, 0);
             --primary-dark: rgb(200, 70, 0);
             --section-bg: #ffffff;
             --text-color: #333333;
+            --font-size: 16px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            font-size: var(--font-size);
         }
 
         body.dark-mode {
@@ -38,7 +46,11 @@
         body.theme-pink { --primary-color: rgb(255, 100, 180); --primary-dark: rgb(220, 70, 150); }
         body.theme-yellow { --primary-color: rgb(200, 160, 0); --primary-dark: rgb(160, 130, 0); }
 
-        .container { max-width: 800px; margin: 0 auto; }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        
         section { 
             background: var(--section-bg); 
             padding: 20px; 
@@ -55,6 +67,7 @@
             margin-bottom: 20px; 
             gap: 15px;
         }
+        
         h1 { 
             margin: 0; 
             color: var(--primary-color); 
@@ -67,10 +80,23 @@
             gap: 10px;
             width: 100%;
         }
-        .control-group { display: flex; align-items: center; gap: 8px; }
+        
+        .control-group { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
 
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-group { 
+            margin-bottom: 15px; 
+        }
+        
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+        }
+        
         input[type="number"], input[type="time"], select { 
             width: 100%; 
             padding: 8px; 
@@ -80,7 +106,12 @@
             background-color: var(--section-bg);
             color: var(--text-color);
         }
-        .help-text { font-size: 0.8em; color: #666; margin-top: 3px; }
+        
+        .help-text { 
+            font-size: 0.8em; 
+            color: #666; 
+            margin-top: 3px; 
+        }
 
         button {
             background-color: var(--primary-color);
@@ -96,12 +127,19 @@
             border-radius: 4px;
             transition: background-color 0.3s;
         }
+        
         button:hover { 
             background-color: var(--primary-dark);
             transform: translateY(-1px);
         }
 
-        #resultsSection { display: none; margin-top: 30px; border-top: 2px solid var(--primary-color); padding-top: 20px; }
+        #resultsSection { 
+            display: none; 
+            margin-top: 30px; 
+            border-top: 2px solid var(--primary-color); 
+            padding-top: 20px; 
+        }
+        
         .result-group { 
             margin-bottom: 15px; 
             padding: 15px;
@@ -109,14 +147,22 @@
             border-radius: 5px;
             border-left: 3px solid var(--primary-color);
         }
+        
         .result-value { 
             font-weight: bold; 
             font-size: 1.1em; 
             color: var(--primary-color);
         }
 
-        #fontSizeControl { display: flex; align-items: center; }
-        #fontSizeSlider { margin-left: 10px; }
+        #fontSizeControl { 
+            display: flex; 
+            align-items: center; 
+        }
+        
+        #fontSizeSlider { 
+            margin-left: 10px; 
+            width: 100px;
+        }
 
         .dark-mode-toggle { 
             cursor: pointer; 
@@ -126,7 +172,10 @@
             transition: all 0.3s ease;
             font-size: 1.2em;
         }
-        body.dark-mode .dark-mode-toggle { background: #555; }
+        
+        body.dark-mode .dark-mode-toggle { 
+            background: #555; 
+        }
 
         .input-group-logical {
             margin-bottom: 20px;
@@ -135,16 +184,19 @@
             border-radius: 8px;
             border-left: 3px solid var(--primary-color);
         }
+        
         .input-group-logical h3 {
             margin-top: 0;
             color: var(--primary-color);
             font-size: 1.1em;
         }
+        
         .input-row {
             display: flex;
             gap: 15px;
             margin-bottom: 10px;
         }
+        
         .input-row .input-group {
             flex: 1;
             margin-bottom: 0;
@@ -156,6 +208,7 @@
             font-weight: bold;
             margin: 10px 0;
         }
+        
         .status-low { background-color: #4CAF50; color: white; }
         .status-medium { background-color: #FF9800; color: white; }
         .status-high { background-color: #f44336; color: white; }
@@ -165,12 +218,15 @@
             gap: 15px;
             margin-bottom: 15px;
         }
+        
         .break-group {
             flex: 1;
         }
+        
         .break-group label {
             font-size: 0.9em;
         }
+        
         .break-group input {
             font-size: 0.9em;
             padding: 6px;
@@ -192,6 +248,7 @@
             border: 1px dashed rgba(255, 98, 0, 0.3);
             font-style: italic;
         }
+        
         body.dark-mode .disclaimer {
             color: #aaa;
             background: rgba(255, 98, 0, 0.1);
@@ -213,6 +270,7 @@
             border-radius: 5px;
             border-left: 3px solid #0064ff;
         }
+        
         .comparison-value {
             font-weight: bold;
             font-size: 1.1em;
@@ -224,11 +282,13 @@
             flex-direction: column;
             gap: 10px;
         }
+        
         .controls-main {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
         }
+        
         .controls-secondary {
             display: flex;
             gap: 15px;
@@ -243,19 +303,11 @@
             border-radius: 5px;
             border-left: 3px solid #9600ff;
         }
+        
         .rescue-value {
             font-weight: bold; 
             font-size: 1.1em; 
             color: #9600ff;
-        }
-        
-        .theme-preview {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-            border: 2px solid #ddd;
         }
         
         .amazon-warning {
@@ -267,6 +319,7 @@
             margin: 10px 0;
             font-size: 0.9em;
         }
+        
         body.dark-mode .amazon-warning {
             background-color: #332701;
             border-color: #665200;
@@ -280,10 +333,22 @@
                 justify-content: space-between;
                 align-items: center;
             }
+            
             .controls {
                 width: auto;
                 max-width: 500px;
             }
+        }
+        
+        .reset-button {
+            background-color: #666;
+            font-size: 0.8em;
+            padding: 5px 10px;
+            margin-top: 10px;
+        }
+        
+        .reset-button:hover {
+            background-color: #444;
         }
     </style>
 </head>
@@ -317,7 +382,7 @@
                     </div>
                     <div class="controls-secondary">
                         <div class="control-group">
-                            <label for="fontSizeSlider">A<span style="font-size: 0.8em;">a</span></label>
+                            <label for="fontSizeSlider">Font Size:</label>
                             <input type="range" id="fontSizeSlider" min="12" max="24" value="16" step="1">
                         </div>
                         <div class="control-group">
@@ -325,6 +390,7 @@
                         </div>
                     </div>
                 </div>
+                <button class="reset-button" id="resetSettings">Reset All Settings</button>
             </div>
         </header>
 
@@ -610,6 +676,98 @@
             updateTotalBreakTime();
         }
 
+        // Settings persistence functions
+        function saveSettings() {
+            const settings = {
+                theme: document.getElementById('themeSelector').value,
+                darkMode: document.body.classList.contains('dark-mode'),
+                fontSize: document.getElementById('fontSizeSlider').value,
+                language: document.getElementById('languageSelector').value
+            };
+            localStorage.setItem('paceCalculatorSettings', JSON.stringify(settings));
+            console.log('Settings saved:', settings);
+        }
+
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('paceCalculatorSettings');
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+                    console.log('Settings loaded:', settings);
+                    
+                    // Wait a brief moment to ensure DOM is fully ready
+                    setTimeout(() => {
+                        // Apply theme
+                        if (settings.theme && document.getElementById('themeSelector')) {
+                            document.getElementById('themeSelector').value = settings.theme;
+                            applyTheme(settings.theme);
+                        }
+                        
+                        // Apply dark mode
+                        if (settings.darkMode !== undefined) {
+                            if (settings.darkMode) {
+                                document.body.classList.add('dark-mode');
+                                if (document.getElementById('darkModeToggle')) {
+                                    document.getElementById('darkModeToggle').textContent = '☀️';
+                                }
+                            } else {
+                                document.body.classList.remove('dark-mode');
+                                if (document.getElementById('darkModeToggle')) {
+                                    document.getElementById('darkModeToggle').textContent = '🌙';
+                                }
+                            }
+                        }
+                        
+                        // Apply font size
+                        if (settings.fontSize && document.getElementById('fontSizeSlider')) {
+                            document.getElementById('fontSizeSlider').value = settings.fontSize;
+                            document.documentElement.style.setProperty('--font-size', settings.fontSize + 'px');
+                        }
+                        
+                        // Apply language
+                        if (settings.language && document.getElementById('languageSelector')) {
+                            document.getElementById('languageSelector').value = settings.language;
+                            setLanguage(settings.language);
+                        }
+                    }, 10);
+                } catch (e) {
+                    console.error('Error loading settings:', e);
+                    // Clear corrupted settings
+                    localStorage.removeItem('paceCalculatorSettings');
+                }
+            }
+        }
+
+        function applyTheme(theme) {
+            document.body.classList.remove('theme-blue', 'theme-purple', 'theme-green', 'theme-red', 'theme-teal', 'theme-pink', 'theme-yellow');
+            if (theme !== 'default') {
+                document.body.classList.add('theme-' + theme);
+            }
+        }
+
+        function resetSettings() {
+            // Clear saved settings
+            localStorage.removeItem('paceCalculatorSettings');
+            
+            // Reset to defaults
+            document.getElementById('themeSelector').value = 'default';
+            applyTheme('default');
+            
+            document.body.classList.remove('dark-mode');
+            document.getElementById('darkModeToggle').textContent = '🌙';
+            
+            document.getElementById('fontSizeSlider').value = '16';
+            document.documentElement.style.setProperty('--font-size', '16px');
+            
+            document.getElementById('languageSelector').value = 'en';
+            setLanguage('en');
+            
+            // Save the default settings
+            saveSettings();
+            
+            alert('All settings have been reset to defaults.');
+        }
+
         // Initialize everything when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             // Set current time
@@ -621,6 +779,9 @@
             // Set first package time to 10:00 AM by default
             document.getElementById('firstPackageTime').value = "10:00";
             
+            // Load saved settings AFTER setting up the DOM
+            loadSettings();
+            
             // Set up event listeners for break time calculation
             ['firstBreak', 'lunchBreak', 'secondBreak'].forEach(id => {
                 document.getElementById(id).addEventListener('input', updateTotalBreakTime);
@@ -629,37 +790,43 @@
             
             // Font size slider
             document.getElementById('fontSizeSlider').addEventListener('input', function() {
-                document.getElementById('main-html').style.fontSize = this.value + 'px';
+                document.documentElement.style.setProperty('--font-size', this.value + 'px');
+                saveSettings();
             });
             
             // Language selector
             document.getElementById('languageSelector').addEventListener('change', function() {
                 setLanguage(this.value);
+                saveSettings();
             });
             
-            // Theme selector (replaces colorblind mode)
+            // Theme selector
             document.getElementById('themeSelector').addEventListener('change', function() {
-                document.body.classList.remove('theme-blue', 'theme-purple', 'theme-green', 'theme-red', 'theme-teal', 'theme-pink', 'theme-yellow');
-                if (this.value !== 'default') document.body.classList.add('theme-' + this.value);
+                applyTheme(this.value);
+                saveSettings();
             });
             
             // Dark mode
             document.getElementById('darkModeToggle').addEventListener('click', function() {
                 document.body.classList.toggle('dark-mode');
                 this.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+                saveSettings();
             });
+            
+            // Reset settings button
+            document.getElementById('resetSettings').addEventListener('click', resetSettings);
             
             // Rescue fields toggle
             document.getElementById('hadRescueCheckbox').addEventListener('change', function() {
                 document.getElementById('rescueFields').style.display = this.checked ? 'block' : 'none';
             });
             
-            // Amazon fields toggle - FIXED: Show/hide based on checkbox
+            // Amazon fields toggle
             document.getElementById('compareAmazonCheckbox').addEventListener('change', function() {
                 document.getElementById('amazonFields').style.display = this.checked ? 'block' : 'none';
             });
             
-            // Calculate button with CORRECTED logic
+            // Calculate button
             document.getElementById('calculateButton').addEventListener('click', function() {
                 // Basic validation
                 const firstPackageTime = document.getElementById('firstPackageTime').value;
@@ -703,24 +870,24 @@
                     const compareAmazon = document.getElementById('compareAmazonCheckbox').checked;
                     const amazonEndTime = document.getElementById('amazonEndTime').value;
                     
-                    // CORRECTED CALCULATION LOGIC - RESCUE DOESN'T AFFECT MAIN ROUTE PACE
+                    // Calculate main route pace
                     const startMinutes = timeStringToMinutes(firstPackageTime);
                     const currentMinutes = timeStringToMinutes(currentTime);
                     
-                    // Calculate gross elapsed time (excluding rescue travel time for main route)
+                    // Calculate gross elapsed time
                     let grossElapsedMinutes = currentMinutes - startMinutes;
                     if (grossElapsedMinutes < 0) grossElapsedMinutes += 24 * 60;
                     
-                    // Calculate net working time for main route (subtract breaks only - rescue travel NOT included)
+                    // Calculate net working time for main route
                     const netWorkingMinutes = grossElapsedMinutes - totalBreakTime;
                     
-                    // Calculate current pace for main route only (rescue doesn't affect this)
+                    // Calculate current pace for main route only
                     const paceStopsPerHour = netWorkingMinutes > 0 ? (completedStops / netWorkingMinutes) * 60 : 0;
                     
-                    // Calculate time needed for remaining main route stops (in minutes)
+                    // Calculate time needed for remaining main route stops
                     const minutesForRemainingStops = remainingStops > 0 ? (remainingStops / paceStopsPerHour) * 60 : 0;
                     
-                    // Projected finish for main route only = current time + time for remaining stops + break time
+                    // Projected finish for main route only
                     const projectedFinishMinutes = currentMinutes + minutesForRemainingStops + totalBreakTime;
                     const projectedFinish12h = minutesTo12hTimeString(projectedFinishMinutes);
                     
@@ -740,7 +907,7 @@
                         </div>
                     `;
                     
-                    // Add Amazon comparison if applicable - FIXED: Now properly shows when checkbox is checked
+                    // Add Amazon comparison if applicable
                     if (compareAmazon) {
                         if (amazonEndTime) {
                             const amazonBaseMinutes = timeStringToMinutes(amazonEndTime);
@@ -756,8 +923,7 @@
                             
                             const amazonExpectedPace = amazonTotalTimeWithBreaks > 0 ? (totalStops / amazonTotalTimeWithBreaks) * 60 : 0;
                             
-                            // Calculate time differences (rounded to whole numbers)
-                            // Compare main route projection to Amazon's expectations with breaks
+                            // Calculate time differences
                             const vsAmazonWithBreaksDiff = Math.round(projectedFinishMinutes - amazonWithBreaksMinutes);
                             
                             resultsHTML += `
@@ -787,16 +953,16 @@
                         }
                     }
                     
-                    // Add rescue impact section if applicable (now placed after Amazon comparison)
+                    // Add rescue impact section if applicable
                     if (hadRescue && rescueStopsAdded > 0) {
-                        // Calculate rescue pace separately (using main route pace as baseline)
-                        const rescuePace = paceStopsPerHour; // Use same pace as main route
+                        // Calculate rescue pace separately
+                        const rescuePace = paceStopsPerHour;
                         
-                        // Calculate rescue time (travel time + time for rescue stops)
+                        // Calculate rescue time
                         const rescueStopsTime = rescueStopsAdded > 0 ? (rescueStopsAdded / rescuePace) * 60 : 0;
                         const totalRescueTime = rescueTravelTime + rescueStopsTime;
                         
-                        // Projected finish with rescue = main route finish + rescue time
+                        // Projected finish with rescue
                         const rescueProjectedFinishMinutes = projectedFinishMinutes + totalRescueTime;
                         const rescueProjectedFinish12h = minutesTo12hTimeString(rescueProjectedFinishMinutes);
                         
@@ -868,9 +1034,6 @@
                     document.getElementById('resultsContent').innerHTML = resultsHTML;
                 }, 500);
             });
-            
-            // Initialize with English
-            setLanguage('en');
         });
     </script>
 </body>
