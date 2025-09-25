@@ -45,6 +45,37 @@
         body.theme-teal { --primary-color: rgb(0, 150, 150); --primary-dark: rgb(0, 120, 120); }
         body.theme-pink { --primary-color: rgb(255, 100, 180); --primary-dark: rgb(220, 70, 150); }
         body.theme-yellow { --primary-color: rgb(200, 160, 0); --primary-dark: rgb(160, 130, 0); }
+        /* NEW: Amazon theme */
+        body.theme-amazon { 
+            --primary-color: #007eb9; /* Prime Blue */
+            --primary-dark: #0066a1; /* Darker Blue */
+            --section-bg: #232f3e; /* Steel Blue Gray */
+            --text-color: #ffffff; /* White text */
+            background-color: #111111; /* Dark charcoal */
+            color: #ffffff; /* White text */
+        }
+
+        body.theme-amazon section {
+            background-color: #232f3e; /* Steel Blue Gray */
+            border: 1px solid #37475a; /* Slate divider */
+            border-left: 4px solid var(--primary-color);
+        }
+
+        body.theme-amazon input[type="number"], 
+        body.theme-amazon input[type="time"], 
+        body.theme-amazon select {
+            background-color: #37475a; /* Input background */
+            color: #ffffff; /* White text */
+            border: 1px solid #cccccc;
+        }
+
+        body.theme-amazon .reset-fields-button {
+            background-color: #e47911; /* Amazon Orange */
+        }
+        
+        body.theme-amazon .reset-fields-button:hover {
+            background-color: #d76b0a; /* Darker Orange */
+        }
 
         .container { 
             max-width: 800px; 
@@ -147,7 +178,7 @@
             border-radius: 5px;
             border-left: 3px solid var(--primary-color);
         }
-        
+
         .result-value { 
             font-weight: bold; 
             font-size: 1.1em; 
@@ -450,6 +481,8 @@
                                 <option value="teal">Teal</option>
                                 <option value="pink">Pink</option>
                                 <option value="yellow">Yellow</option>
+                                <!-- NEW: Amazon theme option -->
+                                <option value="amazon">Amazon</option>
                             </select>
                         </div>
                     </div>
@@ -804,7 +837,7 @@
         }
 
         function applyTheme(theme) {
-            document.body.classList.remove('theme-blue', 'theme-purple', 'theme-green', 'theme-red', 'theme-teal', 'theme-pink', 'theme-yellow');
+            document.body.classList.remove('theme-blue', 'theme-purple', 'theme-green', 'theme-red', 'theme-teal', 'theme-pink', 'theme-yellow', 'theme-amazon');
             if (theme !== 'default') {
                 document.body.classList.add('theme-' + theme);
             }
