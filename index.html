@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pace Calculator 2.0</title>
     <style>
-        /* All the previous CSS remains the same */
+        /* All previous CSS remains the same */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -393,6 +393,36 @@
             font-weight: bold;
             text-align: center;
         }
+        
+        /* Remove the breaks help text */
+        .breaks-help-text {
+            display: none;
+        }
+        
+        /* FIXED: Amazon combined layout - moved value closer to colon */
+        .amazon-combined {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin: 10px 0;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .amazon-combined-value {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #0064ff;
+            margin-left: 5px;
+        }
+        
+        .vs-amazon-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -504,7 +534,7 @@
                         <input type="number" id="secondBreak" min="0" value="0" placeholder="Minutes">
                     </div>
                 </div>
-                <div class="help-text" id="breaks-help">Total Break Time: <span id="totalBreakTime">0</span> minutes</div>
+                <!-- Removed the breaks help text -->
             </section>
 
             <!-- 3. AMAZON'S FORECAST -->
@@ -599,6 +629,7 @@
                 "amazon-base": "Amazon's Base Expectation",
                 "amazon-with-breaks": "Amazon's Expectation (with breaks)",
                 "amazon-pace": "Amazon's Expected Pace (with breaks)",
+                "amazon-combined": "Amazon's Base Expectations (with Breaks)",
                 "time-ahead": "ahead",
                 "time-behind": "behind",
                 "vs-amazon": "vs. Amazon's Expectations",
@@ -653,6 +684,7 @@
                 "amazon-base": "Expectativa Base de Amazon",
                 "amazon-with-breaks": "Expectativa de Amazon (con descansos)",
                 "amazon-pace": "Ritmo Esperado por Amazon (con descansos)",
+                "amazon-combined": "Expectativas Base de Amazon (con Descansos)",
                 "time-ahead": "adelantado",
                 "time-behind": "atrasado",
                 "vs-amazon": "vs. Expectativas de Amazon",
@@ -697,20 +729,6 @@
             return `${twelveHour}:${minutes.toString().padStart(2, '0')} ${period}`;
         }
 
-        function updateTotalBreakTime() {
-            const firstBreak = parseInt(document.getElementById('firstBreak').value) || 0;
-            const lunchBreak = parseInt(document.getElementById('lunchBreak').value) || 0;
-            const secondBreak = parseInt(document.getElementById('secondBreak').value) || 0;
-            
-            const totalBreakTime = firstBreak + lunchBreak + secondBreak;
-            document.getElementById('totalBreakTime').textContent = totalBreakTime;
-            
-            // Update the minutes text in the breaks section
-            const currentLang = document.getElementById('languageSelector').value;
-            const minutesText = translations[currentLang]['minutes'];
-            document.querySelector('#breaks-help').innerHTML = `${translations[currentLang]['breaks-help']} <span id="totalBreakTime">${totalBreakTime}</span> ${minutesText}`;
-        }
-
         function setLanguage(lang) {
             Object.keys(translations[lang]).forEach(key => {
                 const element = document.getElementById(key);
@@ -723,9 +741,6 @@
                 }
             });
             document.getElementById('calculateButton').textContent = translations[lang]['calculate-button'];
-            
-            // Update the breaks section with proper capitalization
-            updateTotalBreakTime();
         }
 
         // Settings persistence functions
@@ -737,7 +752,6 @@
                 language: document.getElementById('languageSelector').value
             };
             localStorage.setItem('paceCalculatorSettings', JSON.stringify(settings));
-            console.log('Settings saved:', settings);
         }
 
         function loadSettings() {
@@ -745,7 +759,6 @@
             if (savedSettings) {
                 try {
                     const settings = JSON.parse(savedSettings);
-                    console.log('Settings loaded:', settings);
                     
                     // Wait a brief moment to ensure DOM is fully ready
                     setTimeout(() => {
@@ -841,7 +854,6 @@
             document.getElementById('firstBreak').value = '0';
             document.getElementById('lunchBreak').value = '0';
             document.getElementById('secondBreak').value = '0';
-            updateTotalBreakTime();
             
             // Reset Amazon comparison
             document.getElementById('compareAmazonCheckbox').checked = false;
@@ -889,12 +901,6 @@
             
             // Load saved settings AFTER setting up the DOM
             loadSettings();
-            
-            // Set up event listeners for break time calculation
-            ['firstBreak', 'lunchBreak', 'secondBreak'].forEach(id => {
-                document.getElementById(id).addEventListener('input', updateTotalBreakTime);
-            });
-            updateTotalBreakTime();
             
             // Font size slider
             document.getElementById('fontSizeSlider').addEventListener('input', function() {
@@ -961,7 +967,7 @@
                     scrollToResults();
                 }, 100);
                 
-                // Simulate calculation (replace with actual logic)
+                // Simulate calculation
                 setTimeout(() => {
                     const t = translations[currentLang];
                     
@@ -995,7 +1001,7 @@
                     let grossElapsedMinutes = currentMinutes - startMinutes;
                     if (grossElapsedMinutes < 0) grossElapsedMinutes += 24 * 60;
                     
-                    // Calculate net working time for main route
+                    // Calculate net working time for main route (subtract breaks already taken)
                     const netWorkingMinutes = grossElapsedMinutes - totalBreakTime;
                     
                     // Calculate current pace for main route only
@@ -1004,10 +1010,10 @@
                     // Check if route is completed
                     const isRouteCompleted = remainingStops <= 0;
                     
-                    // Calculate time needed for remaining main route stops
+                    // FIXED CALCULATION: Time needed for remaining stops = remaining stops / current pace
                     const minutesForRemainingStops = remainingStops > 0 ? (remainingStops / paceStopsPerHour) * 60 : 0;
                     
-                    // Projected finish for main route only
+                    // FIXED: Projected finish = current time + time for remaining stops
                     let projectedFinishMinutes;
                     let actualFinishMinutes = currentMinutes;
                     
@@ -1016,7 +1022,7 @@
                         projectedFinishMinutes = currentMinutes;
                     } else {
                         // If route is not completed, calculate projected finish
-                        projectedFinishMinutes = currentMinutes + minutesForRemainingStops + totalBreakTime;
+                        projectedFinishMinutes = currentMinutes + minutesForRemainingStops;
                     }
                     
                     const projectedFinish12h = minutesTo12hTimeString(projectedFinishMinutes);
@@ -1060,49 +1066,45 @@
                     resultsHTML += `</div>`;
                     
                     // Add Amazon comparison if applicable
-                    if (compareAmazon) {
-                        if (amazonEndTime) {
-                            const amazonBaseMinutes = timeStringToMinutes(amazonEndTime);
-                            const amazonBase12h = time24hTo12h(amazonEndTime);
-                            
-                            // Amazon's expectation with breaks added
-                            const amazonWithBreaksMinutes = amazonBaseMinutes + totalBreakTime;
-                            const amazonWithBreaks12h = minutesTo12hTimeString(amazonWithBreaksMinutes);
-                            
-                            // Calculate Amazon's expected pace (with breaks)
-                            let amazonTotalTimeWithBreaks = amazonWithBreaksMinutes - startMinutes;
-                            if (amazonTotalTimeWithBreaks < 0) amazonTotalTimeWithBreaks += 24 * 60;
-                            
-                            const amazonExpectedPace = amazonTotalTimeWithBreaks > 0 ? (totalStops / amazonTotalTimeWithBreaks) * 60 : 0;
-                            
-                            // Calculate time differences
-                            const vsAmazonWithBreaksDiff = Math.round(projectedFinishMinutes - amazonWithBreaksMinutes);
-                            
-                            resultsHTML += `
-                                <div class="comparison-group">
-                                    <h3>${t['amazon-comparison']}</h3>
-                                    <p><strong>${t['amazon-base']}:</strong> 
-                                        <span class="comparison-value">${amazonBase12h}</span>
-                                    </p>
-                                    <p><strong>${t['amazon-with-breaks']}:</strong> 
-                                        <span class="comparison-value">${amazonWithBreaks12h}</span>
-                                    </p>
-                                    <p><strong>${t['amazon-pace']}:</strong> 
-                                        <span class="comparison-value">${Math.round(amazonExpectedPace)} ${t['stops-hour']}</span>
-                                    </p>
-                                    <p><strong>${t['vs-amazon']}:</strong> 
-                                        <span class="comparison-value">${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${vsAmazonWithBreaksDiff < 0 ? t['time-ahead'] : t['time-behind']}</span>
-                                    </p>
+                    if (compareAmazon && amazonEndTime) {
+                        const amazonBaseMinutes = timeStringToMinutes(amazonEndTime);
+                        const amazonBase12h = time24hTo12h(amazonEndTime);
+                        
+                        // Amazon's expectation with breaks added
+                        const amazonWithBreaksMinutes = amazonBaseMinutes + totalBreakTime;
+                        const amazonWithBreaks12h = minutesTo12hTimeString(amazonWithBreaksMinutes);
+                        
+                        // Calculate Amazon's expected pace (with breaks included)
+                        // Total time from first package to Amazon's expected finish (with breaks)
+                        let amazonTotalTimeMinutes = amazonWithBreaksMinutes - startMinutes;
+                        if (amazonTotalTimeMinutes < 0) amazonTotalTimeMinutes += 24 * 60;
+                        
+                        const amazonExpectedPace = amazonTotalTimeMinutes > 0 ? (totalStops / amazonTotalTimeMinutes) * 60 : 0;
+                        
+                        // Calculate time differences
+                        const vsAmazonDiff = Math.round(projectedFinishMinutes - amazonWithBreaksMinutes);
+                        
+                        // FIXED: Improved layout for Amazon expectations
+                        resultsHTML += `
+                            <div class="comparison-group">
+                                <h3>${t['amazon-comparison']}</h3>
+                                <div class="amazon-combined">
+                                    <strong>${t['amazon-combined']}:</strong>
+                                    <span class="amazon-combined-value">${amazonWithBreaks12h} / ${Math.round(amazonExpectedPace)} ${t['stops-hour']}</span>
                                 </div>
-                            `;
-                        } else {
-                            // Show warning if Amazon time is not provided
-                            resultsHTML += `
-                                <div class="amazon-warning">
-                                    ⚠️ ${t['amazon-time-required']}
+                                <div class="vs-amazon-container">
+                                    <strong>${t['vs-amazon']}:</strong>
+                                    <span class="comparison-value">${Math.abs(vsAmazonDiff)} ${t['minutes']} ${vsAmazonDiff < 0 ? t['time-ahead'] : t['time-behind']}</span>
                                 </div>
-                            `;
-                        }
+                            </div>
+                        `;
+                    } else if (compareAmazon && !amazonEndTime) {
+                        // Show warning if Amazon time is not provided
+                        resultsHTML += `
+                            <div class="amazon-warning">
+                                ⚠️ ${t['amazon-time-required']}
+                            </div>
+                        `;
                     }
                     
                     // Add rescue impact section if applicable
@@ -1145,20 +1147,21 @@
                     let statusText = "";
                     
                     if (compareAmazon && amazonEndTime) {
-                        const amazonWithBreaksMinutes = timeStringToMinutes(amazonEndTime) + totalBreakTime;
-                        const vsAmazonWithBreaksDiff = Math.round(projectedFinishMinutes - amazonWithBreaksMinutes);
+                        const amazonBaseMinutes = timeStringToMinutes(amazonEndTime);
+                        const amazonWithBreaksMinutes = amazonBaseMinutes + totalBreakTime;
+                        const vsAmazonDiff = Math.round(projectedFinishMinutes - amazonWithBreaksMinutes);
                         
                         if (isRouteCompleted) {
-                            if (vsAmazonWithBreaksDiff < 0) {
+                            if (vsAmazonDiff < 0) {
                                 statusClass = "status-low";
                                 statusText = currentLang === 'es' ? 
-                                    `¡${t['finished-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
-                                    `${t['finished-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
-                            } else if (vsAmazonWithBreaksDiff > 0) {
+                                    `¡${t['finished-ahead']}! ${Math.abs(vsAmazonDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
+                                    `${t['finished-ahead']}! ${Math.abs(vsAmazonDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
+                            } else if (vsAmazonDiff > 0) {
                                 statusClass = "status-medium";
                                 statusText = currentLang === 'es' ? 
-                                    `Completado - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
-                                    `Completed - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                                    `Completado - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                                    `Completed - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
                             } else {
                                 statusClass = "status-low";
                                 statusText = currentLang === 'es' ? 
@@ -1166,21 +1169,21 @@
                                     `${t['status-on-track']}! Completed exactly as expected by Amazon`;
                             }
                         } else {
-                            if (vsAmazonWithBreaksDiff > 30) {
+                            if (vsAmazonDiff > 30) {
                                 statusClass = "status-high";
                                 statusText = currentLang === 'es' ? 
-                                    `${t['status-need-speed']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
-                                    `${t['status-need-speed']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
-                            } else if (vsAmazonWithBreaksDiff > 10) {
+                                    `${t['status-need-speed']} - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                                    `${t['status-need-speed']} - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                            } else if (vsAmazonDiff > 10) {
                                 statusClass = "status-medium";
                                 statusText = currentLang === 'es' ? 
-                                    `${t['status-a-little-behind']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
-                                    `${t['status-a-little-behind']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
-                            } else if (vsAmazonWithBreaksDiff < -10) {
+                                    `${t['status-a-little-behind']} - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                                    `${t['status-a-little-behind']} - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                            } else if (vsAmazonDiff < -10) {
                                 statusClass = "status-low";
                                 statusText = currentLang === 'es' ? 
-                                    `${t['status-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
-                                    `${t['status-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
+                                    `${t['status-ahead']}! ${Math.abs(vsAmazonDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
+                                    `${t['status-ahead']}! ${Math.abs(vsAmazonDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
                             } else {
                                 statusClass = "status-low";
                                 statusText = currentLang === 'es' ? 
