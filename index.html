@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pace Calculator 2.0</title>
     <style>
-        /* Your existing CSS remains the same */
+        /* All the previous CSS remains the same */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -326,6 +326,34 @@
             color: #f1c40f;
         }
         
+        /* Reset buttons styling */
+        .reset-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .reset-fields-button {
+            background-color: #ff6b6b;
+            font-size: 0.8em;
+            padding: 5px 10px;
+        }
+        
+        .reset-fields-button:hover {
+            background-color: #ff5252;
+        }
+        
+        .reset-settings-button {
+            background-color: #666;
+            font-size: 0.8em;
+            padding: 5px 10px;
+        }
+        
+        .reset-settings-button:hover {
+            background-color: #444;
+        }
+        
         /* Responsive adjustments */
         @media (min-width: 768px) {
             header {
@@ -340,15 +368,30 @@
             }
         }
         
-        .reset-button {
-            background-color: #666;
-            font-size: 0.8em;
-            padding: 5px 10px;
-            margin-top: 10px;
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
         }
         
-        .reset-button:hover {
-            background-color: #444;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .completed-route-indicator {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+            text-align: center;
         }
     </style>
 </head>
@@ -390,7 +433,10 @@
                         </div>
                     </div>
                 </div>
-                <button class="reset-button" id="resetSettings">Reset All Settings</button>
+                <div class="reset-buttons">
+                    <button class="reset-fields-button" id="resetFields">Reset All Fields</button>
+                    <button class="reset-settings-button" id="resetSettings">Reset All Settings</button>
+                </div>
             </div>
         </header>
 
@@ -546,6 +592,7 @@
                 "amazon-comparison": "Amazon's Expectations",
                 "current-pace": "Current Pace",
                 "projected-finish": "Projected Finish",
+                "actual-finish": "Actual Finish Time",
                 "rescue-projected-finish": "Rescue Projected Finish",
                 "stops-hour": "stops/hour",
                 "disclaimer-text": "Note: These calculations are based on general formulas and are not Amazon's official algorithms. Results are approximate and for informational purposes only.",
@@ -564,7 +611,9 @@
                 "status-need-speed": "Need to speed up",
                 "status-a-little-behind": "A few minutes behind",
                 "status-ahead": "Ahead of schedule",
-                "status-on-track": "On schedule"
+                "status-on-track": "On schedule",
+                "route-completed": "Route Completed!",
+                "finished-ahead": "Finished ahead of schedule"
             },
             es: {
                 "main-title": "Calculadora de Ritmo 2.0",
@@ -597,6 +646,7 @@
                 "amazon-comparison": "Expectativas de Amazon",
                 "current-pace": "Ritmo Actual",
                 "projected-finish": "Final Proyectado",
+                "actual-finish": "Hora de Finalización Real",
                 "rescue-projected-finish": "Final Proyectado del Rescate",
                 "stops-hour": "paradas/hora",
                 "disclaimer-text": "Nota: Estos cálculos se basan en fórmulas generales y no son los algoritmos oficiales de Amazon. Los resultados son aproximados y solo para fines informativos.",
@@ -615,7 +665,9 @@
                 "status-need-speed": "Necesitas acelerar",
                 "status-a-little-behind": "Un poco atrasado",
                 "status-ahead": "Adelantado",
-                "status-on-track": "En el horario"
+                "status-on-track": "En el horario",
+                "route-completed": "¡Ruta Completada!",
+                "finished-ahead": "Terminado antes del horario"
             }
         };
 
@@ -768,6 +820,62 @@
             alert('All settings have been reset to defaults.');
         }
 
+        // Function to reset all form fields
+        function resetAllFields() {
+            // Reset time fields
+            document.getElementById('firstPackageTime').value = '10:00';
+            
+            // Set current time to actual current time
+            const now = new Date();
+            document.getElementById('currentTime').value = 
+                now.getHours().toString().padStart(2, '0') + ':' + 
+                now.getMinutes().toString().padStart(2, '0');
+            
+            // Reset stop counts
+            document.getElementById('completedStops').value = '0';
+            document.getElementById('completedAptStops').value = '0';
+            document.getElementById('totalStops').value = '0';
+            document.getElementById('totalAptStops').value = '0';
+            
+            // Reset breaks
+            document.getElementById('firstBreak').value = '0';
+            document.getElementById('lunchBreak').value = '0';
+            document.getElementById('secondBreak').value = '0';
+            updateTotalBreakTime();
+            
+            // Reset Amazon comparison
+            document.getElementById('compareAmazonCheckbox').checked = false;
+            document.getElementById('amazonFields').style.display = 'none';
+            document.getElementById('amazonEndTime').value = '17:00';
+            
+            // Reset rescue fields
+            document.getElementById('hadRescueCheckbox').checked = false;
+            document.getElementById('rescueFields').style.display = 'none';
+            document.getElementById('rescueTravelTime').value = '0';
+            document.getElementById('rescueStopsAdded').value = '0';
+            
+            // Hide results section
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            // Show confirmation message
+            const currentLang = document.getElementById('languageSelector').value;
+            const message = currentLang === 'es' ? 
+                'Todos los campos han sido restablecidos.' : 
+                'All fields have been reset.';
+            alert(message);
+        }
+
+        // Function to scroll to results section smoothly
+        function scrollToResults() {
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) {
+                resultsSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start'
+                });
+            }
+        }
+
         // Initialize everything when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             // Set current time
@@ -813,6 +921,9 @@
                 saveSettings();
             });
             
+            // Reset fields button
+            document.getElementById('resetFields').addEventListener('click', resetAllFields);
+            
             // Reset settings button
             document.getElementById('resetSettings').addEventListener('click', resetSettings);
             
@@ -840,12 +951,18 @@
                 }
                 
                 // Show loading state
-                document.getElementById('resultsContent').innerHTML = "<p>Calculating...</p>";
+                const currentLang = document.getElementById('languageSelector').value;
+                const calculatingText = currentLang === 'es' ? 'Calculando...' : 'Calculating...';
+                document.getElementById('resultsContent').innerHTML = `<p><span class="loading"></span>${calculatingText}</p>`;
                 document.getElementById('resultsSection').style.display = 'block';
+                
+                // Scroll to results section immediately
+                setTimeout(() => {
+                    scrollToResults();
+                }, 100);
                 
                 // Simulate calculation (replace with actual logic)
                 setTimeout(() => {
-                    const currentLang = document.getElementById('languageSelector').value;
                     const t = translations[currentLang];
                     
                     // Get all input values
@@ -884,17 +1001,50 @@
                     // Calculate current pace for main route only
                     const paceStopsPerHour = netWorkingMinutes > 0 ? (completedStops / netWorkingMinutes) * 60 : 0;
                     
+                    // Check if route is completed
+                    const isRouteCompleted = remainingStops <= 0;
+                    
                     // Calculate time needed for remaining main route stops
                     const minutesForRemainingStops = remainingStops > 0 ? (remainingStops / paceStopsPerHour) * 60 : 0;
                     
                     // Projected finish for main route only
-                    const projectedFinishMinutes = currentMinutes + minutesForRemainingStops + totalBreakTime;
+                    let projectedFinishMinutes;
+                    let actualFinishMinutes = currentMinutes;
+                    
+                    if (isRouteCompleted) {
+                        // If route is completed, projected finish is the current/end time
+                        projectedFinishMinutes = currentMinutes;
+                    } else {
+                        // If route is not completed, calculate projected finish
+                        projectedFinishMinutes = currentMinutes + minutesForRemainingStops + totalBreakTime;
+                    }
+                    
                     const projectedFinish12h = minutesTo12hTimeString(projectedFinishMinutes);
+                    const actualFinish12h = minutesTo12hTimeString(actualFinishMinutes);
                     
                     // Build results HTML - MAIN ROUTE ONLY
                     let resultsHTML = `
                         <div class="result-group">
                             <h3>${t['full-route']}</h3>
+                    `;
+                    
+                    if (isRouteCompleted) {
+                        resultsHTML += `
+                            <div class="completed-route-indicator">
+                                ${t['route-completed']}
+                            </div>
+                            <p><strong>${t['current-pace']}:</strong> 
+                                <span class="result-value">${Math.round(paceStopsPerHour)} ${t['stops-hour']}</span>
+                            </p>
+                            <p><strong>${t['breaks-help'].replace(':', '')}:</strong> 
+                                <span class="result-value">${totalBreakTime} ${t['minutes']}</span>
+                            </p>
+                            <p><strong>${t['actual-finish']}:</strong> 
+                                <span class="result-value">${actualFinish12h}</span>
+                            </p>
+                        `;
+                    } else {
+                        resultsHTML += `
                             <p><strong>${t['current-pace']}:</strong> 
                                 <span class="result-value">${Math.round(paceStopsPerHour)} ${t['stops-hour']}</span>
                             </p>
@@ -904,8 +1054,10 @@
                             <p><strong>${t['projected-finish']}:</strong> 
                                 <span class="result-value">${projectedFinish12h}</span>
                             </p>
-                        </div>
-                    `;
+                        `;
+                    }
+                    
+                    resultsHTML += `</div>`;
                     
                     // Add Amazon comparison if applicable
                     if (compareAmazon) {
@@ -996,32 +1148,57 @@
                         const amazonWithBreaksMinutes = timeStringToMinutes(amazonEndTime) + totalBreakTime;
                         const vsAmazonWithBreaksDiff = Math.round(projectedFinishMinutes - amazonWithBreaksMinutes);
                         
-                        if (vsAmazonWithBreaksDiff > 30) {
-                            statusClass = "status-high";
-                            statusText = currentLang === 'es' ? 
-                                `${t['status-need-speed']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
-                                `${t['status-need-speed']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
-                        } else if (vsAmazonWithBreaksDiff > 10) {
-                            statusClass = "status-medium";
-                            statusText = currentLang === 'es' ? 
-                                `${t['status-a-little-behind']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
-                                `${t['status-a-little-behind']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
-                        } else if (vsAmazonWithBreaksDiff < -10) {
-                            statusClass = "status-low";
-                            statusText = currentLang === 'es' ? 
-                                `${t['status-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
-                                `${t['status-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
+                        if (isRouteCompleted) {
+                            if (vsAmazonWithBreaksDiff < 0) {
+                                statusClass = "status-low";
+                                statusText = currentLang === 'es' ? 
+                                    `¡${t['finished-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
+                                    `${t['finished-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
+                            } else if (vsAmazonWithBreaksDiff > 0) {
+                                statusClass = "status-medium";
+                                statusText = currentLang === 'es' ? 
+                                    `Completado - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                                    `Completed - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                            } else {
+                                statusClass = "status-low";
+                                statusText = currentLang === 'es' ? 
+                                    `¡${t['status-on-track']}! Completado exactamente según lo esperado por Amazon` : 
+                                    `${t['status-on-track']}! Completed exactly as expected by Amazon`;
+                            }
                         } else {
-                            statusClass = "status-low";
-                            statusText = currentLang === 'es' ? 
-                                `¡${t['status-on-track']}! Vas según lo esperado por Amazon` : 
-                                `${t['status-on-track']}! Meeting Amazon's expectations`;
+                            if (vsAmazonWithBreaksDiff > 30) {
+                                statusClass = "status-high";
+                                statusText = currentLang === 'es' ? 
+                                    `${t['status-need-speed']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                                    `${t['status-need-speed']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                            } else if (vsAmazonWithBreaksDiff > 10) {
+                                statusClass = "status-medium";
+                                statusText = currentLang === 'es' ? 
+                                    `${t['status-a-little-behind']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                                    `${t['status-a-little-behind']} - ${vsAmazonWithBreaksDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                            } else if (vsAmazonWithBreaksDiff < -10) {
+                                statusClass = "status-low";
+                                statusText = currentLang === 'es' ? 
+                                    `${t['status-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
+                                    `${t['status-ahead']}! ${Math.abs(vsAmazonWithBreaksDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
+                            } else {
+                                statusClass = "status-low";
+                                statusText = currentLang === 'es' ? 
+                                    `¡${t['status-on-track']}! Vas según lo esperado por Amazon` : 
+                                    `${t['status-on-track']}! Meeting Amazon's expectations`;
+                            }
                         }
                     } else {
                         // Default status when not comparing with Amazon
-                        statusText = currentLang === 'es' ? 
-                            '¡Buen ritmo! Continúa así' : 
-                            'Good pace! Keep it up';
+                        if (isRouteCompleted) {
+                            statusText = currentLang === 'es' ? 
+                                '¡Ruta completada! Buen trabajo.' : 
+                                'Route completed! Good job.';
+                        } else {
+                            statusText = currentLang === 'es' ? 
+                                '¡Buen ritmo! Continúa así' : 
+                                'Good pace! Keep it up';
+                        }
                     }
                     
                     resultsHTML += `
@@ -1032,6 +1209,11 @@
                     `;
                     
                     document.getElementById('resultsContent').innerHTML = resultsHTML;
+                    
+                    // Scroll to results again after they're fully loaded
+                    setTimeout(() => {
+                        scrollToResults();
+                    }, 100);
                 }, 500);
             });
         });
