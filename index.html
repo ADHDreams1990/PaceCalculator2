@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pace Calculator 2</title>
+    <title>Pace Calculator 2 - Fixed</title>
     <style>
-        /* All previous CSS remains the same */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -45,7 +44,8 @@
         body.theme-teal { --primary-color: rgb(0, 150, 150); --primary-dark: rgb(0, 120, 120); }
         body.theme-pink { --primary-color: rgb(255, 100, 180); --primary-dark: rgb(220, 70, 150); }
         body.theme-yellow { --primary-color: rgb(200, 160, 0); --primary-dark: rgb(160, 130, 0); }
-        /* NEW: Amazon theme */
+        
+        /* Amazon Theme - Dark Mode */
         body.theme-amazon { 
             --primary-color: #007eb9; /* Prime Blue */
             --primary-dark: #0066a1; /* Darker Blue */
@@ -54,27 +54,15 @@
             background-color: #111111; /* Dark charcoal */
             color: #ffffff; /* White text */
         }
-
-        body.theme-amazon section {
-            background-color: #232f3e; /* Steel Blue Gray */
-            border: 1px solid #37475a; /* Slate divider */
-            border-left: 4px solid var(--primary-color);
-        }
-
-        body.theme-amazon input[type="number"], 
-        body.theme-amazon input[type="time"], 
-        body.theme-amazon select {
-            background-color: #37475a; /* Input background */
-            color: #ffffff; /* White text */
-            border: 1px solid #cccccc;
-        }
-
-        body.theme-amazon .reset-fields-button {
-            background-color: #e47911; /* Amazon Orange */
-        }
         
-        body.theme-amazon .reset-fields-button:hover {
-            background-color: #d76b0a; /* Darker Orange */
+        /* Amazon Theme - Light Mode */
+        body.theme-amazon:not(.dark-mode) {
+            --primary-color: #007eb9; /* Prime Blue */
+            --primary-dark: #0066a1; /* Darker Blue */
+            --section-bg: #ffffff; /* White background */
+            --text-color: #333333; /* Dark text */
+            background-color: #f4f4f4; /* Light gray background */
+            color: #333333; /* Dark text */
         }
 
         .container { 
@@ -161,7 +149,6 @@
         
         button:hover { 
             background-color: var(--primary-dark);
-            transform: translateY(-1px);
         }
 
         #resultsSection { 
@@ -280,12 +267,6 @@
             font-style: italic;
         }
         
-        body.dark-mode .disclaimer {
-            color: #aaa;
-            background: rgba(255, 98, 0, 0.1);
-            border-color: rgba(255, 98, 0, 0.5);
-        }
-        
         .rescue-fields {
             margin-top: 15px;
             padding: 15px;
@@ -351,13 +332,6 @@
             font-size: 0.9em;
         }
         
-        body.dark-mode .amazon-warning {
-            background-color: #332701;
-            border-color: #665200;
-            color: #f1c40f;
-        }
-        
-        /* Reset buttons styling */
         .reset-buttons {
             display: flex;
             flex-direction: column;
@@ -385,7 +359,6 @@
             background-color: #444;
         }
         
-        /* Responsive adjustments */
         @media (min-width: 768px) {
             header {
                 flex-direction: row;
@@ -399,7 +372,6 @@
             }
         }
         
-        /* Loading animation */
         .loading {
             display: inline-block;
             width: 20px;
@@ -425,12 +397,6 @@
             text-align: center;
         }
         
-        /* Remove the breaks help text */
-        .breaks-help-text {
-            display: none;
-        }
-        
-        /* FIXED: Amazon combined layout - moved value closer to colon */
         .amazon-combined {
             display: flex;
             justify-content: flex-start;
@@ -481,7 +447,6 @@
                                 <option value="teal">Teal</option>
                                 <option value="pink">Pink</option>
                                 <option value="yellow">Yellow</option>
-                                <!-- NEW: Amazon theme option -->
                                 <option value="amazon">Amazon</option>
                             </select>
                         </div>
@@ -504,7 +469,6 @@
         </header>
 
         <main>
-            <!-- 1. ROUTE DATA -->
             <section id="routeDataSection">
                 <h2 id="route-data-title">Your Route Data</h2>
                 
@@ -526,11 +490,11 @@
                     <div class="input-row">
                         <div class="input-group">
                             <label for="completedStops" id="completed-stops-label">Total Completed</label>
-                            <input type="number" id="completedStops" min="0" value="0" required>
+                            <input type="number" id="completedStops" min="0" placeholder="Enter number">
                         </div>
                         <div class="input-group">
                             <label for="completedAptStops" id="completed-apt-label">Apartment Stops Completed</label>
-                            <input type="number" id="completedAptStops" min="0" value="0" required>
+                            <input type="number" id="completedAptStops" min="0" placeholder="Enter number">
                         </div>
                     </div>
                 </div>
@@ -540,37 +504,35 @@
                     <div class="input-row">
                         <div class="input-group">
                             <label for="totalStops" id="total-stops-label">Total Stop Count</label>
-                            <input type="number" id="totalStops" min="1" value="0" required>
+                            <input type="number" id="totalStops" min="1" placeholder="Enter number">
                         </div>
                         <div class="input-group">
                             <label for="totalAptStops" id="total-apt-label">Total Apt Stops</label>
-                            <input type="number" id="totalAptStops" min="0" value="0" required>
+                            <input type="number" id="totalAptStops" min="0" placeholder="Enter number">
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 2. BREAKS -->
             <section id="breaksSection">
-                <h2 id="breaks-title">Breaks</h2>
+                <h2 id="breaks-title">Breaks (Optional)</h2>
                 <div class="breaks-row">
                     <div class="break-group">
-                        <label for="firstBreak" id="first-break-label">1st Break:</label>
-                        <input type="number" id="firstBreak" min="0" value="0" placeholder="Minutes">
+                        <label for="firstBreak" id="first-break-label">1st Break (minutes):</label>
+                        <input type="number" id="firstBreak" min="0" placeholder="Optional">
                     </div>
                     <div class="break-group">
-                        <label for="lunchBreak" id="lunch-break-label">Lunch:</label>
-                        <input type="number" id="lunchBreak" min="0" value="0" placeholder="Minutes">
+                        <label for="lunchBreak" id="lunch-break-label">Lunch (minutes):</label>
+                        <input type="number" id="lunchBreak" min="0" placeholder="Optional">
                     </div>
                     <div class="break-group">
-                        <label for="secondBreak" id="second-break-label">2nd Break:</label>
-                        <input type="number" id="secondBreak" min="0" value="0" placeholder="Minutes">
+                        <label for="secondBreak" id="second-break-label">2nd Break (minutes):</label>
+                        <input type="number" id="secondBreak" min="0" placeholder="Optional">
                     </div>
                 </div>
-                <!-- Removed the breaks help text -->
+                <div class="help-text" id="breaks-help">Leave blank if no breaks were taken</div>
             </section>
 
-            <!-- 3. AMAZON'S FORECAST -->
             <section id="amazonSection">
                 <div class="input-group">
                     <label>
@@ -586,7 +548,6 @@
                 </div>
             </section>
 
-            <!-- 4. RESCUE -->
             <section id="rescueSection">
                 <div class="input-group">
                     <label>
@@ -598,11 +559,11 @@
                     <div class="input-row">
                         <div class="input-group">
                             <label for="rescueTravelTime" id="rescue-travel-label">Time traveled to first rescue delivery (minutes)</label>
-                            <input type="number" id="rescueTravelTime" min="0" value="0">
+                            <input type="number" id="rescueTravelTime" min="0" placeholder="Optional">
                         </div>
                         <div class="input-group">
                             <label for="rescueStopsAdded" id="rescue-stops-label">Number of stops added from rescue</label>
-                            <input type="number" id="rescueStopsAdded" min="0" value="0">
+                            <input type="number" id="rescueStopsAdded" min="0" placeholder="Optional">
                         </div>
                     </div>
                     <div class="help-text" id="rescue-help">Rescue stops will be calculated separately and won't affect your main route pace</div>
@@ -627,7 +588,7 @@
             en: {
                 "main-title": "Pace Calculator 2",
                 "route-data-title": "Your Route Data",
-                "breaks-title": "Breaks",
+                "breaks-title": "Breaks (Optional)",
                 "results-title": "Results",
                 "first-package-label": "First Package Delivered Time",
                 "current-time-text": "Current Time",
@@ -643,29 +604,28 @@
                 "rescue-travel-label": "Time traveled to first rescue delivery (minutes)",
                 "rescue-stops-label": "Number of stops added from rescue",
                 "rescue-help": "Rescue stops will be calculated separately and won't affect your main route pace",
-                "first-break-label": "1st Break:",
-                "lunch-break-label": "Lunch:",
-                "second-break-label": "2nd Break:",
-                "breaks-help": "Total Break Time:",
+                "first-break-label": "1st Break (minutes):",
+                "lunch-break-label": "Lunch (minutes):",
+                "second-break-label": "2nd Break (minutes):",
+                "breaks-help": "Leave blank if no breaks were taken",
                 "amazon-checkbox-label": "Compare with Amazon's Forecast",
                 "amazon-end-label": "Amazon's Expected End Time",
                 "calculate-button": "Calculate Pace",
                 "full-route": "Your Route Projection",
                 "rescue-impact": "Rescue Impact",
                 "amazon-comparison": "Amazon's Expectations",
-                "current-pace": "Current Pace",
-                "projected-finish": "Projected Finish",
+                "current-pace": "Current Pace (Working Time Only)",
+                "projected-finish": "Projected Finish (With Breaks)",
                 "actual-finish": "Actual Finish Time",
                 "rescue-projected-finish": "Rescue Projected Finish",
                 "stops-hour": "stops/hour",
                 "disclaimer-text": "Note: These calculations are based on general formulas and are not Amazon's official algorithms. Results are approximate and for informational purposes only.",
-                "amazon-base": "Amazon's Base Expectation",
-                "amazon-with-breaks": "Amazon's Expectation (with breaks)",
-                "amazon-pace": "Amazon's Expected Pace (with breaks)",
-                "amazon-combined": "Amazon's Base Expectations (with Breaks)",
+                "amazon-base": "Amazon's Base Expectation (Without Breaks)",
+                "amazon-with-breaks": "Amazon's Expectation (With Breaks)",
+                "amazon-pace": "Amazon's Expected Pace",
                 "time-ahead": "ahead",
                 "time-behind": "behind",
-                "vs-amazon": "vs. Amazon's Expectations",
+                "vs-amazon": "vs. Amazon's Expectations (With Breaks)",
                 "rescue-total-time": "Rescue Total Time",
                 "rescue-pace": "Rescue Pace",
                 "minutes": "minutes",
@@ -677,12 +637,15 @@
                 "status-ahead": "Ahead of schedule",
                 "status-on-track": "On schedule",
                 "route-completed": "Route Completed!",
-                "finished-ahead": "Finished ahead of schedule"
+                "finished-ahead": "Finished ahead of schedule",
+                "total-breaks": "Total Breaks",
+                "amazon-working-pace": "Amazon's Expected Working Pace",
+                "your-working-pace": "Your Working Pace"
             },
             es: {
-                "main-title": "Calculadora de Ritmo 2",
+                "main-title": "Calculadora de Ritmo 2.0",
                 "route-data-title": "Datos de Tu Ruta",
-                "breaks-title": "Descansos",
+                "breaks-title": "Descansos (Opcional)",
                 "results-title": "Resultados",
                 "first-package-label": "Hora de Primera Entrega",
                 "current-time-text": "Hora Actual",
@@ -698,29 +661,28 @@
                 "rescue-travel-label": "Tiempo de viaje a primer rescate entregado (minutos)",
                 "rescue-stops-label": "Número de paradas añadidas por rescate",
                 "rescue-help": "Las paradas de rescate se calcularán por separado y no afectarán tu ritmo de ruta principal",
-                "first-break-label": "1er Descanso:",
-                "lunch-break-label": "Almuerzo:",
-                "second-break-label": "2do Descanso:",
-                "breaks-help": "Tiempo Total de Descanso:",
+                "first-break-label": "1er Descanso (minutos):",
+                "lunch-break-label": "Almuerzo (minutos):",
+                "second-break-label": "2do Descanso (minutos):",
+                "breaks-help": "Dejar en blanco si no se tomaron descansos",
                 "amazon-checkbox-label": "Comparar con Pronóstico de Amazon",
                 "amazon-end-label": "Hora Final Esperada por Amazon",
                 "calculate-button": "Calcular Ritmo",
                 "full-route": "Tu Proyección de Ruta",
                 "rescue-impact": "Impacto del Rescate",
                 "amazon-comparison": "Expectativas de Amazon",
-                "current-pace": "Ritmo Actual",
-                "projected-finish": "Final Proyectado",
+                "current-pace": "Ritmo Actual (Solo Tiempo de Trabajo)",
+                "projected-finish": "Final Proyectado (Con Descansos)",
                 "actual-finish": "Hora de Finalización Real",
                 "rescue-projected-finish": "Final Proyectado del Rescate",
                 "stops-hour": "paradas/hora",
                 "disclaimer-text": "Nota: Estos cálculos se basan en fórmulas generales y no son los algoritmos oficiales de Amazon. Los resultados son aproximados y solo para fines informativos.",
-                "amazon-base": "Expectativa Base de Amazon",
-                "amazon-with-breaks": "Expectativa de Amazon (con descansos)",
-                "amazon-pace": "Ritmo Esperado por Amazon (con descansos)",
-                "amazon-combined": "Expectativas Base de Amazon (con Descansos)",
+                "amazon-base": "Expectativa Base de Amazon (Sin Descansos)",
+                "amazon-with-breaks": "Expectativa de Amazon (Con Descansos)",
+                "amazon-pace": "Ritmo Esperado por Amazon",
                 "time-ahead": "adelantado",
                 "time-behind": "atrasado",
-                "vs-amazon": "vs. Expectativas de Amazon",
+                "vs-amazon": "vs. Expectativas de Amazon (Con Descansos)",
                 "rescue-total-time": "Tiempo Total del Rescate",
                 "rescue-pace": "Ritmo del Rescate",
                 "minutes": "minutos",
@@ -732,7 +694,10 @@
                 "status-ahead": "Adelantado",
                 "status-on-track": "En el horario",
                 "route-completed": "¡Ruta Completada!",
-                "finished-ahead": "Terminado antes del horario"
+                "finished-ahead": "Terminado antes del horario",
+                "total-breaks": "Total de Descansos",
+                "amazon-working-pace": "Ritmo de Trabajo Esperado por Amazon",
+                "your-working-pace": "Tu Ritmo de Trabajo"
             }
         };
 
@@ -752,7 +717,6 @@
             return `${twelveHour}:${minutes.toString().padStart(2, '0')} ${period}`;
         }
 
-        // Convert 24h time string to 12h format
         function time24hTo12h(time24h) {
             if (!time24h) return "";
             const [hours, minutes] = time24h.split(':').map(Number);
@@ -766,14 +730,11 @@
             Object.keys(translations[lang]).forEach(key => {
                 const element = document.getElementById(key);
                 if (element) {
-                    if (key === 'current-time-text' || key === 'current-time-parenthesis') {
-                        element.textContent = translations[lang][key];
-                    } else {
-                        element.textContent = translations[lang][key];
-                    }
+                    element.textContent = translations[lang][key];
                 }
             });
             document.getElementById('calculateButton').textContent = translations[lang]['calculate-button'];
+            document.getElementById('breaks-help').textContent = translations[lang]['breaks-help'];
         }
 
         // Settings persistence functions
@@ -793,15 +754,12 @@
                 try {
                     const settings = JSON.parse(savedSettings);
                     
-                    // Wait a brief moment to ensure DOM is fully ready
                     setTimeout(() => {
-                        // Apply theme
                         if (settings.theme && document.getElementById('themeSelector')) {
                             document.getElementById('themeSelector').value = settings.theme;
                             applyTheme(settings.theme);
                         }
                         
-                        // Apply dark mode
                         if (settings.darkMode !== undefined) {
                             if (settings.darkMode) {
                                 document.body.classList.add('dark-mode');
@@ -816,13 +774,11 @@
                             }
                         }
                         
-                        // Apply font size
                         if (settings.fontSize && document.getElementById('fontSizeSlider')) {
                             document.getElementById('fontSizeSlider').value = settings.fontSize;
                             document.documentElement.style.setProperty('--font-size', settings.fontSize + 'px');
                         }
                         
-                        // Apply language
                         if (settings.language && document.getElementById('languageSelector')) {
                             document.getElementById('languageSelector').value = settings.language;
                             setLanguage(settings.language);
@@ -830,7 +786,6 @@
                     }, 10);
                 } catch (e) {
                     console.error('Error loading settings:', e);
-                    // Clear corrupted settings
                     localStorage.removeItem('paceCalculatorSettings');
                 }
             }
@@ -844,10 +799,8 @@
         }
 
         function resetSettings() {
-            // Clear saved settings
             localStorage.removeItem('paceCalculatorSettings');
             
-            // Reset to defaults
             document.getElementById('themeSelector').value = 'default';
             applyTheme('default');
             
@@ -860,49 +813,39 @@
             document.getElementById('languageSelector').value = 'en';
             setLanguage('en');
             
-            // Save the default settings
             saveSettings();
             
             alert('All settings have been reset to defaults.');
         }
 
-        // Function to reset all form fields
         function resetAllFields() {
-            // Reset time fields
             document.getElementById('firstPackageTime').value = '10:00';
             
-            // Set current time to actual current time
             const now = new Date();
             document.getElementById('currentTime').value = 
                 now.getHours().toString().padStart(2, '0') + ':' + 
                 now.getMinutes().toString().padStart(2, '0');
             
-            // Reset stop counts
-            document.getElementById('completedStops').value = '0';
-            document.getElementById('completedAptStops').value = '0';
-            document.getElementById('totalStops').value = '0';
-            document.getElementById('totalAptStops').value = '0';
+            document.getElementById('completedStops').value = '';
+            document.getElementById('completedAptStops').value = '';
+            document.getElementById('totalStops').value = '';
+            document.getElementById('totalAptStops').value = '';
             
-            // Reset breaks
-            document.getElementById('firstBreak').value = '0';
-            document.getElementById('lunchBreak').value = '0';
-            document.getElementById('secondBreak').value = '0';
+            document.getElementById('firstBreak').value = '';
+            document.getElementById('lunchBreak').value = '';
+            document.getElementById('secondBreak').value = '';
             
-            // Reset Amazon comparison
             document.getElementById('compareAmazonCheckbox').checked = false;
             document.getElementById('amazonFields').style.display = 'none';
             document.getElementById('amazonEndTime').value = '17:00';
             
-            // Reset rescue fields
             document.getElementById('hadRescueCheckbox').checked = false;
             document.getElementById('rescueFields').style.display = 'none';
-            document.getElementById('rescueTravelTime').value = '0';
-            document.getElementById('rescueStopsAdded').value = '0';
+            document.getElementById('rescueTravelTime').value = '';
+            document.getElementById('rescueStopsAdded').value = '';
             
-            // Hide results section
             document.getElementById('resultsSection').style.display = 'none';
             
-            // Show confirmation message
             const currentLang = document.getElementById('languageSelector').value;
             const message = currentLang === 'es' ? 
                 'Todos los campos han sido restablecidos.' : 
@@ -910,7 +853,6 @@
             alert(message);
         }
 
-        // Function to scroll to results section smoothly
         function scrollToResults() {
             const resultsSection = document.getElementById('resultsSection');
             if (resultsSection) {
@@ -923,145 +865,128 @@
 
         // Initialize everything when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Set current time
             const now = new Date();
             document.getElementById('currentTime').value = 
                 now.getHours().toString().padStart(2, '0') + ':' + 
                 now.getMinutes().toString().padStart(2, '0');
             
-            // Set first package time to 10:00 AM by default
             document.getElementById('firstPackageTime').value = "10:00";
             
-            // Load saved settings AFTER setting up the DOM
             loadSettings();
             
-            // Font size slider
             document.getElementById('fontSizeSlider').addEventListener('input', function() {
                 document.documentElement.style.setProperty('--font-size', this.value + 'px');
                 saveSettings();
             });
             
-            // Language selector
             document.getElementById('languageSelector').addEventListener('change', function() {
                 setLanguage(this.value);
                 saveSettings();
             });
             
-            // Theme selector
             document.getElementById('themeSelector').addEventListener('change', function() {
                 applyTheme(this.value);
                 saveSettings();
             });
             
-            // Dark mode
             document.getElementById('darkModeToggle').addEventListener('click', function() {
                 document.body.classList.toggle('dark-mode');
                 this.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
                 saveSettings();
             });
             
-            // Reset fields button
             document.getElementById('resetFields').addEventListener('click', resetAllFields);
             
-            // Reset settings button
             document.getElementById('resetSettings').addEventListener('click', resetSettings);
             
-            // Rescue fields toggle
             document.getElementById('hadRescueCheckbox').addEventListener('change', function() {
                 document.getElementById('rescueFields').style.display = this.checked ? 'block' : 'none';
             });
             
-            // Amazon fields toggle
             document.getElementById('compareAmazonCheckbox').addEventListener('change', function() {
                 document.getElementById('amazonFields').style.display = this.checked ? 'block' : 'none';
             });
             
-            // Calculate button
             document.getElementById('calculateButton').addEventListener('click', function() {
-                // Basic validation
                 const firstPackageTime = document.getElementById('firstPackageTime').value;
                 const currentTime = document.getElementById('currentTime').value;
                 const totalStops = parseInt(document.getElementById('totalStops').value) || 0;
                 const completedStops = parseInt(document.getElementById('completedStops').value) || 0;
                 
                 if (!firstPackageTime || !currentTime || totalStops === 0 || completedStops === 0) {
-                    alert("Please fill in all required fields");
+                    const currentLang = document.getElementById('languageSelector').value;
+                    const message = currentLang === 'es' ? 
+                        "Por favor, completa todos los campos requeridos" : 
+                        "Please fill in all required fields";
+                    alert(message);
                     return;
                 }
                 
-                // Show loading state
                 const currentLang = document.getElementById('languageSelector').value;
                 const calculatingText = currentLang === 'es' ? 'Calculando...' : 'Calculating...';
                 document.getElementById('resultsContent').innerHTML = `<p><span class="loading"></span>${calculatingText}</p>`;
                 document.getElementById('resultsSection').style.display = 'block';
                 
-                // Scroll to results section immediately
                 setTimeout(() => {
                     scrollToResults();
                 }, 100);
                 
-                // Simulate calculation
                 setTimeout(() => {
                     const t = translations[currentLang];
                     
-                    // Get all input values
                     const firstPackageTime = document.getElementById('firstPackageTime').value;
                     const currentTime = document.getElementById('currentTime').value;
                     const totalStops = parseInt(document.getElementById('totalStops').value) || 0;
                     const completedStops = parseInt(document.getElementById('completedStops').value) || 0;
                     const remainingStops = totalStops - completedStops;
                     
-                    // Get break times
                     const firstBreak = parseInt(document.getElementById('firstBreak').value) || 0;
                     const lunchBreak = parseInt(document.getElementById('lunchBreak').value) || 0;
                     const secondBreak = parseInt(document.getElementById('secondBreak').value) || 0;
                     const totalBreakTime = firstBreak + lunchBreak + secondBreak;
                     
-                    // Get rescue data
                     const hadRescue = document.getElementById('hadRescueCheckbox').checked;
                     const rescueTravelTime = parseInt(document.getElementById('rescueTravelTime').value) || 0;
                     const rescueStopsAdded = parseInt(document.getElementById('rescueStopsAdded').value) || 0;
                     
-                    // Get Amazon data
                     const compareAmazon = document.getElementById('compareAmazonCheckbox').checked;
                     const amazonEndTime = document.getElementById('amazonEndTime').value;
                     
-                    // Calculate main route pace
+                    // CORRECTED CALCULATIONS
                     const startMinutes = timeStringToMinutes(firstPackageTime);
                     const currentMinutes = timeStringToMinutes(currentTime);
                     
-                    // Calculate gross elapsed time
+                    // Calculate gross elapsed time (including breaks)
                     let grossElapsedMinutes = currentMinutes - startMinutes;
                     if (grossElapsedMinutes < 0) grossElapsedMinutes += 24 * 60;
                     
-                    // Calculate net working time for main route (subtract breaks already taken)
+                    // Calculate net working time (excluding breaks)
                     const netWorkingMinutes = grossElapsedMinutes - totalBreakTime;
                     
-                    // Calculate current pace for main route only
-                    const paceStopsPerHour = netWorkingMinutes > 0 ? (completedStops / netWorkingMinutes) * 60 : 0;
+                    // Calculate current working pace (stops per hour of actual work)
+                    const workingPaceStopsPerHour = netWorkingMinutes > 0 ? (completedStops / netWorkingMinutes) * 60 : 0;
                     
                     // Check if route is completed
                     const isRouteCompleted = remainingStops <= 0;
                     
-                    // FIXED CALCULATION: Time needed for remaining stops = remaining stops / current pace
-                    const minutesForRemainingStops = remainingStops > 0 ? (remainingStops / paceStopsPerHour) * 60 : 0;
+                    // Calculate time needed for remaining stops at current working pace
+                    const minutesForRemainingStops = remainingStops > 0 ? (remainingStops / workingPaceStopsPerHour) * 60 : 0;
                     
-                    // FIXED: Projected finish = current time + time for remaining stops
+                    // Projected finish = current time + time for remaining stops + breaks
                     let projectedFinishMinutes;
                     let actualFinishMinutes = currentMinutes;
                     
                     if (isRouteCompleted) {
-                        // If route is completed, projected finish is the current/end time
                         projectedFinishMinutes = currentMinutes;
                     } else {
-                        // If route is not completed, calculate projected finish
+                        // Finish time based on working pace only, then add breaks
                         projectedFinishMinutes = currentMinutes + minutesForRemainingStops;
                     }
                     
                     const projectedFinish12h = minutesTo12hTimeString(projectedFinishMinutes);
                     const actualFinish12h = minutesTo12hTimeString(actualFinishMinutes);
                     
-                    // Build results HTML - MAIN ROUTE ONLY
+                    // Build results HTML
                     let resultsHTML = `
                         <div class="result-group">
                             <h3>${t['full-route']}</h3>
@@ -1073,9 +998,9 @@
                                 ${t['route-completed']}
                             </div>
                             <p><strong>${t['current-pace']}:</strong> 
-                                <span class="result-value">${Math.round(paceStopsPerHour)} ${t['stops-hour']}</span>
+                                <span class="result-value">${Math.round(workingPaceStopsPerHour)} ${t['stops-hour']}</span>
                             </p>
-                            <p><strong>${t['breaks-help'].replace(':', '')}:</strong> 
+                            <p><strong>${t['total-breaks']}:</strong> 
                                 <span class="result-value">${totalBreakTime} ${t['minutes']}</span>
                             </p>
                             <p><strong>${t['actual-finish']}:</strong> 
@@ -1085,9 +1010,9 @@
                     } else {
                         resultsHTML += `
                             <p><strong>${t['current-pace']}:</strong> 
-                                <span class="result-value">${Math.round(paceStopsPerHour)} ${t['stops-hour']}</span>
+                                <span class="result-value">${Math.round(workingPaceStopsPerHour)} ${t['stops-hour']}</span>
                             </p>
-                            <p><strong>${t['breaks-help'].replace(':', '')}:</strong> 
+                            <p><strong>${t['total-breaks']}:</strong> 
                                 <span class="result-value">${totalBreakTime} ${t['minutes']}</span>
                             </p>
                             <p><strong>${t['projected-finish']}:</strong> 
@@ -1100,30 +1025,34 @@
                     
                     // Add Amazon comparison if applicable
                     if (compareAmazon && amazonEndTime) {
-                        const amazonBaseMinutes = timeStringToMinutes(amazonEndTime);
-                        const amazonBase12h = time24hTo12h(amazonEndTime);
+                        const amazonEndMinutes = timeStringToMinutes(amazonEndTime);
+                        const amazonEnd12h = time24hTo12h(amazonEndTime);
                         
-                        // Amazon's expectation with breaks added
-                        const amazonWithBreaksMinutes = amazonBaseMinutes + totalBreakTime;
+                        // Amazon's expectation is based on working time only (no breaks)
+                        let amazonTotalWorkingMinutes = amazonEndMinutes - startMinutes;
+                        if (amazonTotalWorkingMinutes < 0) amazonTotalWorkingMinutes += 24 * 60;
+                        
+                        // Amazon's expected working pace
+                        const amazonExpectedPace = amazonTotalWorkingMinutes > 0 ? (totalStops / amazonTotalWorkingMinutes) * 60 : 0;
+                        
+                        // Amazon's expected finish time with breaks added
+                        const amazonWithBreaksMinutes = amazonEndMinutes + totalBreakTime;
                         const amazonWithBreaks12h = minutesTo12hTimeString(amazonWithBreaksMinutes);
                         
-                        // Calculate Amazon's expected pace (with breaks included)
-                        // Total time from first package to Amazon's expected finish (with breaks)
-                        let amazonTotalTimeMinutes = amazonWithBreaksMinutes - startMinutes;
-                        if (amazonTotalTimeMinutes < 0) amazonTotalTimeMinutes += 24 * 60;
-                        
-                        const amazonExpectedPace = amazonTotalTimeMinutes > 0 ? (totalStops / amazonTotalTimeMinutes) * 60 : 0;
-                        
-                        // Calculate time differences
+                        // Calculate time differences - compare our projected finish (with breaks) 
+                        // to Amazon's expected finish (with breaks)
                         const vsAmazonDiff = Math.round(projectedFinishMinutes - amazonWithBreaksMinutes);
                         
-                        // FIXED: Improved layout for Amazon expectations
                         resultsHTML += `
                             <div class="comparison-group">
                                 <h3>${t['amazon-comparison']}</h3>
                                 <div class="amazon-combined">
-                                    <strong>${t['amazon-combined']}:</strong>
-                                    <span class="amazon-combined-value">${amazonWithBreaks12h} / ${Math.round(amazonExpectedPace)} ${t['stops-hour']}</span>
+                                    <strong>${t['amazon-base']}:</strong>
+                                    <span class="amazon-combined-value">${amazonEnd12h} / ${Math.round(amazonExpectedPace)} ${t['stops-hour']}</span>
+                                </div>
+                                <div class="amazon-combined">
+                                    <strong>${t['amazon-with-breaks']}:</strong>
+                                    <span class="amazon-combined-value">${amazonWithBreaks12h}</span>
                                 </div>
                                 <div class="vs-amazon-container">
                                     <strong>${t['vs-amazon']}:</strong>
@@ -1132,7 +1061,6 @@
                             </div>
                         `;
                     } else if (compareAmazon && !amazonEndTime) {
-                        // Show warning if Amazon time is not provided
                         resultsHTML += `
                             <div class="amazon-warning">
                                 ⚠️ ${t['amazon-time-required']}
@@ -1142,14 +1070,9 @@
                     
                     // Add rescue impact section if applicable
                     if (hadRescue && rescueStopsAdded > 0) {
-                        // Calculate rescue pace separately
-                        const rescuePace = paceStopsPerHour;
-                        
-                        // Calculate rescue time
+                        const rescuePace = workingPaceStopsPerHour;
                         const rescueStopsTime = rescueStopsAdded > 0 ? (rescueStopsAdded / rescuePace) * 60 : 0;
                         const totalRescueTime = rescueTravelTime + rescueStopsTime;
-                        
-                        // Projected finish with rescue
                         const rescueProjectedFinishMinutes = projectedFinishMinutes + totalRescueTime;
                         const rescueProjectedFinish12h = minutesTo12hTimeString(rescueProjectedFinishMinutes);
                         
@@ -1157,16 +1080,13 @@
                             <div class="rescue-result-group">
                                 <h3>${t['rescue-impact']}</h3>
                                 <p><strong>${t['rescue-stops-added']}:</strong> 
-                                    <span class="rescue-value">${rescueStopsAdded} ${currentLang === 'es' ? 'paradas' : 'stops'}</span>
+                                    <span class="rescue-value">${rescueStopsAdded}</span>
                                 </p>
                                 <p><strong>${t['rescue-travel-time']}:</strong> 
                                     <span class="rescue-value">${rescueTravelTime} ${t['minutes']}</span>
                                 </p>
                                 <p><strong>${t['rescue-total-time']}:</strong> 
                                     <span class="rescue-value">${Math.round(totalRescueTime)} ${t['minutes']}</span>
-                                </p>
-                                <p><strong>${t['rescue-pace']}:</strong> 
-                                    <span class="rescue-value">${Math.round(rescuePace)} ${t['stops-hour']}</span>
                                 </p>
                                 <p><strong>${t['rescue-projected-finish']}:</strong> 
                                     <span class="rescue-value">${rescueProjectedFinish12h}</span>
@@ -1180,8 +1100,8 @@
                     let statusText = "";
                     
                     if (compareAmazon && amazonEndTime) {
-                        const amazonBaseMinutes = timeStringToMinutes(amazonEndTime);
-                        const amazonWithBreaksMinutes = amazonBaseMinutes + totalBreakTime;
+                        const amazonEndMinutes = timeStringToMinutes(amazonEndTime);
+                        const amazonWithBreaksMinutes = amazonEndMinutes + totalBreakTime;
                         const vsAmazonDiff = Math.round(projectedFinishMinutes - amazonWithBreaksMinutes);
                         
                         if (isRouteCompleted) {
@@ -1225,7 +1145,6 @@
                             }
                         }
                     } else {
-                        // Default status when not comparing with Amazon
                         if (isRouteCompleted) {
                             statusText = currentLang === 'es' ? 
                                 '¡Ruta completada! Buen trabajo.' : 
@@ -1246,7 +1165,6 @@
                     
                     document.getElementById('resultsContent').innerHTML = resultsHTML;
                     
-                    // Scroll to results again after they're fully loaded
                     setTimeout(() => {
                         scrollToResults();
                     }, 100);
