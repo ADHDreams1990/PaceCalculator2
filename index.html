@@ -1133,51 +1133,281 @@
             
             document.getElementById('resetSettings').addEventListener('click', resetSettings);
             
-            // Calculate button
-            document.getElementById('calculateButton').addEventListener('click', function() {
-                const firstPackageTime = document.getElementById('firstPackageTime').value;
-                const currentTime = document.getElementById('currentTime').value;
-                const totalStops = parseInt(document.getElementById('totalStops').value) || 0;
-                const completedStops = parseInt(document.getElementById('completedStops').value) || 0;
-                
-                if (!firstPackageTime || !currentTime || totalStops === 0 || completedStops === 0) {
-                    const currentLang = document.getElementById('languageSelector').value;
-                    const message = currentLang === 'es' ? 
-                        "Por favor, completa todos los campos requeridos" : 
-                        "Please fill in all required fields";
-                    alert(message);
-                    return;
+// Calculate button
+document.getElementById('calculateButton').addEventListener('click', function() {
+    const firstPackageTime = document.getElementById('firstPackageTime').value;
+    const currentTime = document.getElementById('currentTime').value;
+    const totalStops = parseInt(document.getElementById('totalStops').value) || 0;
+    const completedStops = parseInt(document.getElementById('completedStops').value) || 0;
+    
+    if (!firstPackageTime || !currentTime || totalStops === 0 || completedStops === 0) {
+        const currentLang = document.getElementById('languageSelector').value;
+        const message = currentLang === 'es' ? 
+            "Por favor, completa todos los campos requeridos" : 
+            "Please fill in all required fields";
+        alert(message);
+        return;
+    }
+    
+    // Show loading state
+    const currentLang = document.getElementById('languageSelector').value;
+    const calculatingText = currentLang === 'es' ? 'Calculando...' : 'Calculating...';
+    document.getElementById('resultsContent').innerHTML = `<p><span class="loading"></span>${calculatingText}</p>`;
+    document.getElementById('resultsSection').style.display = 'block';
+    
+    // Scroll to results section immediately
+    setTimeout(() => {
+        scrollToResults();
+    }, 100);
+    
+    // Perform calculation
+    setTimeout(() => {
+        const t = translations[currentLang];
+        
+        // Get all input values
+        const firstPackageTime = document.getElementById('firstPackageTime').value;
+        const currentTime = document.getElementById('currentTime').value;
+        const totalStops = parseInt(document.getElementById('totalStops').value) || 0;
+        const completedStops = parseInt(document.getElementById('completedStops').value) || 0;
+        const completedAptStops = parseInt(document.getElementById('completedAptStops').value) || 0;
+        const totalAptStops = parseInt(document.getElementById('totalAptStops').value) || 0;
+        const remainingStops = totalStops - completedStops;
+        
+        // Get break times
+        const firstBreak = parseInt(document.getElementById('firstBreak').value) || 0;
+        const lunchBreak = parseInt(document.getElementById('lunchBreak').value) || 0;
+        const secondBreak = parseInt(document.getElementById('secondBreak').value) || 0;
+        const totalBreakTime = firstBreak + lunchBreak + secondBreak;
+        
+        // Get rescue data
+        const hadRescue = document.getElementById('hadRescueCheckbox').checked;
+        const rescueTravelTime = parseInt(document.getElementById('rescueTravelTime').value) || 0;
+        const rescueStopsAdded = parseInt(document.getElementById('rescueStopsAdded').value) || 0;
+        
+        // Get Amazon data
+        const compareAmazon = document.getElementById('compareAmazonCheckbox').checked;
+        const amazonEndTime = document.getElementById('amazonEndTime').value;
+        
+        // CORRECTED CALCULATIONS
+        const startMinutes = timeStringToMinutes(firstPackageTime);
+        const currentMinutes = timeStringToMinutes(currentTime);
+        
+        // Calculate gross elapsed time (including breaks)
+        let grossElapsedMinutes = currentMinutes - startMinutes;
+        if (grossElapsedMinutes < 0) grossElapsedMinutes += 24 * 60;
+        
+        // Calculate net working time (excluding breaks)
+        const netWorkingMinutes = grossElapsedMinutes - totalBreakTime;
+        
+        // Calculate current working pace (stops per hour of actual work)
+        const workingPaceStopsPerHour = netWorkingMinutes > 0 ? (completedStops / netWorkingMinutes) * 60 : 0;
+        
+        // Check if route is completed
+        const isRouteCompleted = remainingStops <= 0;
+        
+        // Calculate time needed for remaining stops at current working pace
+        const minutesForRemainingStops = remainingStops > 0 ? (remainingStops / workingPaceStopsPerHour) * 60 : 0;
+        
+        // Projected finish = current time + time for remaining stops
+        let projectedFinishMinutes;
+        let actualFinishMinutes = currentMinutes;
+        
+        if (isRouteCompleted) {
+            projectedFinishMinutes = currentMinutes;
+        } else {
+            projectedFinishMinutes = currentMinutes + minutesForRemainingStops;
+        }
+        
+        // Add total break time to get the final projected finish (with breaks)
+        const projectedFinishWithBreaks = projectedFinishMinutes;
+        const projectedFinish12h = minutesTo12hTimeString(projectedFinishWithBreaks);
+        const actualFinish12h = minutesTo12hTimeString(actualFinishMinutes);
+        
+        // Build results HTML
+        let resultsHTML = `
+            <div class="result-group">
+                <h3>${t['full-route']}</h3>
+        `;
+        
+        if (isRouteCompleted) {
+            resultsHTML += `
+                <div class="completed-route-indicator">
+                    ${t['route-completed']}
+                </div>
+                <p><strong>${t['current-pace']}:</strong> 
+                    <span class="result-value">${Math.round(workingPaceStopsPerHour)} ${t['stops-hour']}</span>
+                </p>
+                <p><strong>${t['total-breaks']}:</strong> 
+                    <span class="result-value">${totalBreakTime} ${t['minutes']}</span>
+                </p>
+                <p><strong>${t['actual-finish']}:</strong> 
+                    <span class="result-value">${actualFinish12h}</span>
+                </p>
+            `;
+        } else {
+            resultsHTML += `
+                <p><strong>${t['current-pace']}:</strong> 
+                    <span class="result-value">${Math.round(workingPaceStopsPerHour)} ${t['stops-hour']}</span>
+                </p>
+                <p><strong>${t['total-breaks']}:</strong> 
+                    <span class="result-value">${totalBreakTime} ${t['minutes']}</span>
+                </p>
+                <p><strong>${t['projected-finish']}:</strong> 
+                    <span class="result-value">${projectedFinish12h}</span>
+                </p>
+            `;
+        }
+        
+        resultsHTML += `</div>`;
+        
+        // Add Amazon comparison if applicable
+        if (compareAmazon && amazonEndTime) {
+            const amazonEndMinutes = timeStringToMinutes(amazonEndTime);
+            const amazonEnd12h = time24hTo12h(amazonEndTime);
+            
+            // Amazon's expectation is based on working time only (no breaks)
+            let amazonTotalWorkingMinutes = amazonEndMinutes - startMinutes;
+            if (amazonTotalWorkingMinutes < 0) amazonTotalWorkingMinutes += 24 * 60;
+            
+            // Amazon's expected working pace
+            const amazonExpectedPace = amazonTotalWorkingMinutes > 0 ? (totalStops / amazonTotalWorkingMinutes) * 60 : 0;
+            
+            // Amazon's expected finish time with breaks added
+            const amazonWithBreaksMinutes = amazonEndMinutes + totalBreakTime;
+            const amazonWithBreaks12h = minutesTo12hTimeString(amazonWithBreaksMinutes);
+            
+            // Calculate time differences - compare our projected finish (with breaks) 
+            // to Amazon's expected finish (with breaks)
+            const vsAmazonDiff = Math.round(projectedFinishWithBreaks - amazonWithBreaksMinutes);
+            
+            resultsHTML += `
+                <div class="comparison-group">
+                    <h3>${t['amazon-comparison']}</h3>
+                    <div class="amazon-combined">
+                        <strong>${t['amazon-base']}:</strong>
+                        <span class="amazon-combined-value">${amazonEnd12h} / ${Math.round(amazonExpectedPace)} ${t['stops-hour']}</span>
+                    </div>
+                    <div class="amazon-combined">
+                        <strong>${t['amazon-with-breaks']}:</strong>
+                        <span class="amazon-combined-value">${amazonWithBreaks12h}</span>
+                    </div>
+                    <div class="vs-amazon-container">
+                        <strong>${t['vs-amazon']}:</strong>
+                        <span class="comparison-value">${Math.abs(vsAmazonDiff)} ${t['minutes']} ${vsAmazonDiff < 0 ? t['time-ahead'] : t['time-behind']}</span>
+                    </div>
+                </div>
+            `;
+        } else if (compareAmazon && !amazonEndTime) {
+            resultsHTML += `
+                <div class="amazon-warning">
+                    ⚠️ ${t['amazon-time-required']}
+                </div>
+            `;
+        }
+        
+        // Add rescue impact section if applicable
+        if (hadRescue && rescueStopsAdded > 0) {
+            const rescuePace = workingPaceStopsPerHour;
+            const rescueStopsTime = rescueStopsAdded > 0 ? (rescueStopsAdded / rescuePace) * 60 : 0;
+            const totalRescueTime = rescueTravelTime + rescueStopsTime;
+            const rescueProjectedFinishMinutes = projectedFinishWithBreaks + totalRescueTime;
+            const rescueProjectedFinish12h = minutesTo12hTimeString(rescueProjectedFinishMinutes);
+            
+            resultsHTML += `
+                <div class="rescue-result-group">
+                    <h3>${t['rescue-impact']}</h3>
+                    <p><strong>${t['rescue-stops-added']}:</strong> 
+                        <span class="rescue-value">${rescueStopsAdded}</span>
+                    </p>
+                    <p><strong>${t['rescue-travel-time']}:</strong> 
+                        <span class="rescue-value">${rescueTravelTime} ${t['minutes']}</span>
+                    </p>
+                    <p><strong>${t['rescue-total-time']}:</strong> 
+                        <span class="rescue-value">${Math.round(totalRescueTime)} ${t['minutes']}</span>
+                    </p>
+                    <p><strong>${t['rescue-pace']}:</strong> 
+                        <span class="rescue-value">${Math.round(rescuePace)} ${t['stops-hour']}</span>
+                    </p>
+                    <p><strong>${t['rescue-projected-finish']}:</strong> 
+                        <span class="rescue-value">${rescueProjectedFinish12h}</span>
+                    </p>
+                </div>
+            `;
+        }
+        
+        // Add status indicator
+        let statusClass = "status-low";
+        let statusText = "";
+        
+        if (compareAmazon && amazonEndTime) {
+            const amazonEndMinutes = timeStringToMinutes(amazonEndTime);
+            const amazonWithBreaksMinutes = amazonEndMinutes + totalBreakTime;
+            const vsAmazonDiff = Math.round(projectedFinishWithBreaks - amazonWithBreaksMinutes);
+            
+            if (isRouteCompleted) {
+                if (vsAmazonDiff < 0) {
+                    statusClass = "status-low";
+                    statusText = currentLang === 'es' ? 
+                        `¡${t['finished-ahead']}! ${Math.abs(vsAmazonDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
+                        `${t['finished-ahead']}! ${Math.abs(vsAmazonDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
+                } else if (vsAmazonDiff > 0) {
+                    statusClass = "status-medium";
+                    statusText = currentLang === 'es' ? 
+                        `Completado - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                        `Completed - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                } else {
+                    statusClass = "status-low";
+                    statusText = currentLang === 'es' ? 
+                        `¡${t['status-on-track']}! Completado exactamente según lo esperado por Amazon` : 
+                        `${t['status-on-track']}! Completed exactly as expected by Amazon`;
                 }
-                
-                const currentLang = document.getElementById('languageSelector').value;
-                const calculatingText = currentLang === 'es' ? 'Calculando...' : 'Calculating...';
-                document.getElementById('resultsContent').innerHTML = `<p><span class="loading"></span>${calculatingText}</p>`;
-                document.getElementById('resultsSection').style.display = 'block';
-                
-                setTimeout(() => {
-                    scrollToResults();
-                }, 100);
-                
-                setTimeout(() => {
-                    // ... (rest of the calculation code remains the same)
-                    // This would be the same calculation logic as before
-                    // For brevity, I'm omitting the full calculation code
-                    // but it would be identical to what we had before
-                    
-                    document.getElementById('resultsContent').innerHTML = `
-                        <div class="result-group">
-                            <h3>Calculation Results</h3>
-                            <p>Your pace and projected finish time would be displayed here.</p>
-                            <p><em>Note: The full calculation code is omitted for brevity in this example.</em></p>
-                        </div>
-                    `;
-                    
-                    setTimeout(() => {
-                        scrollToResults();
-                    }, 100);
-                }, 500);
-            });
-        });
-    </script>
-</body>
-</html>
+            } else {
+                if (vsAmazonDiff > 30) {
+                    statusClass = "status-high";
+                    statusText = currentLang === 'es' ? 
+                        `${t['status-need-speed']} - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                        `${t['status-need-speed']} - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                } else if (vsAmazonDiff > 10) {
+                    statusClass = "status-medium";
+                    statusText = currentLang === 'es' ? 
+                        `${t['status-a-little-behind']} - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} de Amazon` : 
+                        `${t['status-a-little-behind']} - ${vsAmazonDiff} ${t['minutes']} ${t['time-behind']} Amazon`;
+                } else if (vsAmazonDiff < -10) {
+                    statusClass = "status-low";
+                    statusText = currentLang === 'es' ? 
+                        `${t['status-ahead']}! ${Math.abs(vsAmazonDiff)} ${t['minutes']} ${t['time-ahead']} de Amazon` : 
+                        `${t['status-ahead']}! ${Math.abs(vsAmazonDiff)} ${t['minutes']} ${t['time-ahead']} Amazon`;
+                } else {
+                    statusClass = "status-low";
+                    statusText = currentLang === 'es' ? 
+                        `¡${t['status-on-track']}! Vas según lo esperado por Amazon` : 
+                        `${t['status-on-track']}! Meeting Amazon's expectations`;
+                }
+            }
+        } else {
+            if (isRouteCompleted) {
+                statusText = currentLang === 'es' ? 
+                    '¡Ruta completada! Buen trabajo.' : 
+                    'Route completed! Good job.';
+            } else {
+                statusText = currentLang === 'es' ? 
+                    '¡Buen ritmo! Continúa así' : 
+                    'Good pace! Keep it up';
+            }
+        }
+        
+        resultsHTML += `
+            <div class="status-indicator ${statusClass}">
+                <strong>${currentLang === 'es' ? 'Recomendación' : 'Recommendation'}:</strong><br>
+                ${statusText}
+            </div>
+        `;
+        
+        document.getElementById('resultsContent').innerHTML = resultsHTML;
+        
+        // Scroll to results again after they're fully loaded
+        setTimeout(() => {
+            scrollToResults();
+        }, 100);
+    }, 500); // Simulate processing time
+});
